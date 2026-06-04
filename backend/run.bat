@@ -1,5 +1,6 @@
 @echo off
 SETLOCAL EnableDelayedExpansion
+SET PYTHONIOENCODING=utf-8
 pushd %~dp0
 
 echo ========================================

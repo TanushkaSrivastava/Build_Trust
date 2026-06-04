@@ -75,53 +75,6 @@ export const initialWorkers = [
       "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=300&q=80",
       "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=300&q=80"
     ]
-  },
-  {
-    id: "rahul-choudhary",
-    name: "Rahul Choudhary",
-    specialty: "Masonry",
-    rating: 5.0,
-    reviewsCount: 160,
-    experience: 20,
-    rate: 480,
-    image: "/assets/images/worker_robert_chen.png",
-    verified: true,
-    location: "Noida",
-    distance: 5,
-    about: "Artisan mason dedicated to stone restoration, outdoor fire pits, custom patios, retaining walls, and marble tiling. With two decades of practice in Noida and NCR, I construct features built to endure generations.",
-    equipment: "Heavy duty stone saws, hydraulic lifters, concrete mixers, and scaffolding systems.",
-    tags: ["Artisan Stonework", "Restoration Pro", "Bonded & Insured"],
-    reviews: [
-      { author: "Mayank Roy", date: "May 15, 2026", rating: 5, text: "Rahul built our outdoor clay tandoor and patio brick layout. Truly an artist." },
-      { author: "Sapna Mishra", date: "May 01, 2026", rating: 5, text: "Perfect masonry restoration on our historic red sandstone gate. Extremely respectful team." }
-    ],
-    portfolio: [
-      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=300&q=80",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=300&q=80"
-    ]
-  },
-  {
-    id: "devendra-patel",
-    name: "Devendra Patel",
-    specialty: "Plumbing",
-    rating: 4.7,
-    reviewsCount: 75,
-    experience: 10,
-    rate: 320,
-    image: "/assets/images/worker_marcus_thorne.png", // fallback image
-    verified: false,
-    location: "Bangalore",
-    distance: 15,
-    about: "Leak detection, pipe repairs, fixture installs, and drainage solutions expert in Bangalore. I respond fast to plumbing emergencies in apartments and villas, providing honest, long-lasting fixes.",
-    equipment: "Drain snakes, pipe inspection cameras, hydro-jetting gear, and water pump rigging.",
-    tags: ["Fixture Expert", "Leak Detection", "Emergency Support"],
-    reviews: [
-      { author: "Tushar W.", date: "May 05, 2026", rating: 4.6, text: "Fixed our clogged sewer line quickly. Fair pricing." }
-    ],
-    portfolio: [
-      "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=300&q=80"
-    ]
   }
 ];
 

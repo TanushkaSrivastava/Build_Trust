@@ -14,6 +14,7 @@ export default function Header({
   const [locDropdownOpen, setLocDropdownOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const indianLocations = [
     "Greater Noida",
@@ -41,7 +42,8 @@ export default function Header({
   };
 
   return (
-    <header className="site-header">
+    <React.Fragment>
+      <header className="site-header">
       <div className="header-container">
         <div className="header-left">
           <Link to="/" className="logo">
@@ -61,22 +63,20 @@ export default function Header({
               <path fill="currentColor" d="M7 10l5 5 5-5z"/>
             </svg>
 
-            {locDropdownOpen && (
-              <div className="dropdown-menu" style={{ display: 'block', opacity: 1, visibility: 'visible', transform: 'translateY(0)' }}>
-                {indianLocations.map(loc => (
-                  <button 
-                    key={loc} 
-                    className={`dropdown-item ${currentLocation === loc ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleLocationChange(loc);
-                    }}
-                  >
-                    {loc}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className={`dropdown-menu ${locDropdownOpen ? 'show' : ''}`}>
+              {indianLocations.map(loc => (
+                <button 
+                  key={loc} 
+                  className={`dropdown-item ${currentLocation === loc ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLocationChange(loc);
+                  }}
+                >
+                  {loc}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -119,28 +119,20 @@ export default function Header({
               </svg>
               Language
             </button>
-            {langDropdownOpen && (
-              <div className="dropdown-menu" style={{ display: 'block', opacity: 1, visibility: 'visible', transform: 'translateY(0)' }}>
-                <a href="#" className="dropdown-item active" onClick={(e) => e.preventDefault()}>English</a>
-                <a href="#" className="dropdown-item" onClick={(e) => e.preventDefault()}>Español</a>
-                <a href="#" className="dropdown-item" onClick={(e) => e.preventDefault()}>हिन्दी</a>
-              </div>
-            )}
+            <div className={`dropdown-menu ${langDropdownOpen ? 'show' : ''}`}>
+              <a href="#" className="dropdown-item active" onClick={(e) => e.preventDefault()}>English</a>
+              <a href="#" className="dropdown-item" onClick={(e) => e.preventDefault()}>Español</a>
+              <a href="#" className="dropdown-item" onClick={(e) => e.preventDefault()}>हिन्दी</a>
+            </div>
           </div>
         </nav>
 
         <div className="header-actions">
           {!isLoggedIn ? (
             <>
-              <button className="btn btn-text login-btn" onClick={onOpenLogin}>Login</button>
-              <button 
-                className="btn btn-primary admin-shortcut-btn"
-                onClick={() => {
-                  onOpenLogin();
-                }}
-              >
-                Admin Portal
-              </button>
+              <Link to="/login" className="btn btn-text login-btn">Login</Link>
+              <Link to="/signup" className="btn btn-outline-dark signup-header-btn" style={{ marginRight: '8px' }}>Sign Up</Link>
+              <Link to="/admin" className="btn btn-primary admin-shortcut-btn">Admin Portal</Link>
             </>
           ) : (
             <div 
@@ -158,28 +150,182 @@ export default function Header({
                 <path fill="currentColor" d="M7 10l5 5 5-5z"/>
               </svg>
 
-              {userDropdownOpen && (
-                <div className="dropdown-menu" style={{ display: 'block', right: 0, left: 'auto' }}>
-                  {currentUser?.role === 'admin' ? (
-                    <Link to="/admin" className="dropdown-item">Admin Dashboard</Link>
-                  ) : (
-                    <Link to="/profile" className="dropdown-item">My Bookings & Chats</Link>
-                  )}
-                  <button 
-                    className="dropdown-item" 
-                    onClick={() => {
-                      localStorage.removeItem('bt_token');
-                      window.location.reload();
-                    }}
-                  >
-                    Logout
-                  </button>
-                </div>
+              <div className={`dropdown-menu ${userDropdownOpen ? 'show' : ''}`} style={{ right: 0, left: 'auto' }}>
+                {currentUser?.role === 'admin' ? (
+                  <Link to="/admin" className="dropdown-item">Admin Dashboard</Link>
+                ) : (
+                  <Link to="/profile" className="dropdown-item">My Bookings & Chats</Link>
+                )}
+                <button 
+                  className="dropdown-item" 
+                  onClick={() => {
+                    localStorage.removeItem('bt_token');
+                    window.location.reload();
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Hamburger menu for mobile navigation */}
+          <button 
+            className="mobile-nav-toggle" 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            <svg viewBox="0 0 24 24" width="24" height="24">
+              {mobileMenuOpen ? (
+                <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              ) : (
+                <path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
               )}
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    {/* Mobile Nav Backdrop */}
+    {mobileMenuOpen && (
+      <div 
+        className="mobile-nav-backdrop" 
+        onClick={() => setMobileMenuOpen(false)}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(10, 14, 26, 0.65)',
+          backdropFilter: 'blur(6px)',
+          zIndex: 190,
+          animation: 'fadeIn var(--transition-fast) forwards'
+        }}
+      ></div>
+    )}
+
+    {/* Mobile navigation side drawer overlay */}
+    <div className={`mobile-nav-drawer ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-nav-content">
+          <div className="mobile-drawer-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <span className="logo-bold" style={{ color: 'var(--color-white)', fontSize: '20px', fontFamily: 'var(--font-display)', fontWeight: 800 }}>
+              Build<span className="logo-accent">_Trust</span>
+            </span>
+            <button 
+              className="mobile-drawer-close" 
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ color: 'var(--color-white)', fontSize: '28px', cursor: 'pointer', background: 'none', border: 'none' }}
+              aria-label="Close menu"
+            >
+              &times;
+            </button>
+          </div>
+
+          {/* Location selector for mobile users inside drawer */}
+          <div className="mobile-drawer-section" style={{ marginBottom: '24px' }}>
+            <h4 style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
+              Select Location
+            </h4>
+            <div className="mobile-location-chips" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {indianLocations.map(loc => (
+                <button
+                  key={loc}
+                  className={`mobile-location-chip ${currentLocation === loc ? 'active' : ''}`}
+                  onClick={() => {
+                    handleLocationChange(loc);
+                    setMobileMenuOpen(false);
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '20px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all var(--transition-fast)',
+                    backgroundColor: currentLocation === loc ? 'var(--color-accent)' : 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid',
+                    borderColor: currentLocation === loc ? 'var(--color-accent)' : 'rgba(255, 255, 255, 0.1)',
+                    color: '#ffffff'
+                  }}
+                >
+                  {loc}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mobile-nav-divider"></div>
+
+          <Link 
+            to="/" 
+            className={`mobile-nav-link ${activeView === 'home' ? 'active' : ''}`}
+            onClick={() => { setMobileMenuOpen(false); setActiveView('home'); }}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/search" 
+            className={`mobile-nav-link ${activeView === 'search' ? 'active' : ''}`}
+            onClick={() => { setMobileMenuOpen(false); setActiveView('search'); }}
+          >
+            Find Workers
+          </Link>
+          <button 
+            className="mobile-nav-link btn-ai-mobile" 
+            onClick={() => { setMobileMenuOpen(false); onOpenAiTool(); }}
+          >
+            AI Estimator
+          </button>
+          <a 
+            href="#services" 
+            className="mobile-nav-link"
+            onClick={(e) => {
+              setMobileMenuOpen(false);
+              handleScrollToServices(e);
+            }}
+          >
+            Services
+          </a>
+          
+          <div className="mobile-nav-divider"></div>
+          
+          {!isLoggedIn ? (
+            <div className="mobile-nav-auth">
+              <Link to="/login" className="btn btn-outline btn-full" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+              <Link to="/signup" className="btn btn-outline btn-full" style={{ marginTop: '10px' }} onClick={() => setMobileMenuOpen(false)}>Sign Up</Link>
+              <Link to="/admin" className="btn btn-primary btn-full" style={{ marginTop: '10px' }} onClick={() => setMobileMenuOpen(false)}>Admin Portal</Link>
+            </div>
+          ) : (
+            <div className="mobile-nav-user">
+              <div className="mobile-user-header" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                <div className="user-avatar-circle" style={{ width: '40px', height: '40px', fontSize: '16px' }}>
+                  {currentUser?.email?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <span style={{ fontWeight: 600, color: 'var(--text-light)' }}>
+                  {currentUser?.role === 'admin' ? 'Admin Vikram' : currentUser?.email}
+                </span>
+              </div>
+              {currentUser?.role === 'admin' ? (
+                <Link to="/admin" className="btn btn-outline btn-full" style={{ marginBottom: '12px' }} onClick={() => setMobileMenuOpen(false)}>Admin Dashboard</Link>
+              ) : (
+                <Link to="/profile" className="btn btn-outline btn-full" style={{ marginBottom: '12px' }} onClick={() => setMobileMenuOpen(false)}>My Bookings & Chats</Link>
+              )}
+              <button 
+                className="btn btn-accent btn-full" 
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  localStorage.removeItem('bt_token');
+                  window.location.reload();
+                }}
+              >
+                Logout
+              </button>
             </div>
           )}
         </div>
       </div>
-    </header>
+    </React.Fragment>
   );
 }

@@ -18,6 +18,7 @@ export default function SearchView({
   const [budgetVal, setBudgetVal] = useState(searchFilters.budget || 1000);
   const [ratingVal, setRatingVal] = useState(searchFilters.rating || null);
   const [distanceVal, setDistanceVal] = useState(searchFilters.distance || 15);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Sync state if searchFilters changed externally (e.g. from service click on landing page)
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function SearchView({
       rating: ratingVal,
       distance: distanceVal
     });
+    setMobileFiltersOpen(false);
   };
 
   const handleClearFilters = () => {
@@ -47,6 +49,7 @@ export default function SearchView({
       rating: null,
       distance: 15
     });
+    setMobileFiltersOpen(false);
   };
 
   // The filtering logic is now handled in the backend for workers prop, 
@@ -96,10 +99,32 @@ export default function SearchView({
         </div>
       </div>
 
+      {/* Mobile Filter Toggle Bar */}
+      <div className="mobile-filter-bar container">
+        <button className="mobile-filter-toggle-btn" onClick={() => setMobileFiltersOpen(true)}>
+          <svg viewBox="0 0 24 24" width="16" height="16" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+            <path fill="currentColor" d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
+          </svg>
+          Filter & Sort Specialists
+        </button>
+      </div>
+
       <div className="search-layout container">
+        {/* Filters Backdrop for mobile */}
+        <div 
+          className={`filters-backdrop ${mobileFiltersOpen ? 'show' : ''}`} 
+          onClick={() => setMobileFiltersOpen(false)}
+        ></div>
+
         {/* Filters Sidebar */}
-        <aside className="filters-sidebar">
-          <h3>Filters</h3>
+        <aside className={`filters-sidebar ${mobileFiltersOpen ? 'open' : ''}`}>
+          <div className="filters-sidebar-header">
+            <h3>Filters</h3>
+            <button className="close-filters-btn" onClick={() => setMobileFiltersOpen(false)} aria-label="Close filters">
+              &times;
+            </button>
+          </div>
+          
           <div className="filter-group">
             <label className="filter-label">Search Projects / Skills</label>
             <input 
@@ -167,7 +192,7 @@ export default function SearchView({
             </select>
           </div>
 
-          <button className="btn btn-primary btn-full" onClick={handleApplyFilters}>Apply Filters</button>
+          <button className="btn btn-accent btn-full" onClick={handleApplyFilters}>Apply Filters</button>
           <button className="btn btn-text btn-full text-center" onClick={handleClearFilters}>Clear All</button>
         </aside>
 

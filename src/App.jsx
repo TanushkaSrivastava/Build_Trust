@@ -9,6 +9,9 @@ import ProfileView from './components/ProfileView';
 import AdminView from './components/AdminView';
 import CustomerProfileView from './components/CustomerProfileView';
 import WorkerDashboardView from './components/WorkerDashboardView';
+import LoginPage from './components/LoginPage';
+import SignupPage from './components/SignupPage';
+import AuthCard from './components/AuthCard';
 
 import { initialWorkers, initialAdminState } from './data/mockData';
 
@@ -91,6 +94,7 @@ export default function App() {
   // AUTH STATE
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login');
   const [authStep, setAuthStep] = useState('identify'); // identify, login_options, verify_otp, register
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
@@ -98,6 +102,16 @@ export default function App() {
   const [authName, setAuthName] = useState("");
   const [otpValue, setOtpValue] = useState("");
   const [otpCooldown, setOtpCooldown] = useState(0);
+
+  // Restore session from localStorage on load
+  useEffect(() => {
+    const token = localStorage.getItem('bt_token');
+    const cachedUser = localStorage.getItem('bt_user');
+    if (token && cachedUser) {
+      setIsLoggedIn(true);
+      setCurrentUser(JSON.parse(cachedUser));
+    }
+  }, []);
 
   // Filter conditions
   const [searchFilters, setSearchFilters] = useState({
@@ -582,6 +596,7 @@ export default function App() {
 
   const loginSuccess = (data) => {
     localStorage.setItem('bt_token', data.token);
+    localStorage.setItem('bt_user', JSON.stringify(data.user));
     setIsLoggedIn(true);
     setCurrentUser(data.user);
     addToast(`Welcome, ${data.user.name || data.user.email}!`);
@@ -790,8 +805,8 @@ export default function App() {
           setActiveView={changeRoute}
           currentLocation={currentLocation}
           setCurrentLocation={setCurrentLocation}
-          onOpenLogin={() => {
-            setAuthStep('identify');
+          onOpenLogin={(mode = 'login') => {
+            setAuthModalMode(mode);
             setActiveModal('login');
           }}
           onOpenAiTool={openAiTool}
@@ -857,41 +872,57 @@ export default function App() {
           } />
 
           <Route path="/profile" element={
-            <CustomerProfileView 
-              currentUser={currentUser}
-              adminState={adminState}
-              chatLogs={chatLogs}
-              workers={workers}
-              setActiveView={changeRoute}
-            />
+            isLoggedIn ? (
+              <CustomerProfileView 
+                currentUser={currentUser}
+                adminState={adminState}
+                chatLogs={chatLogs}
+                workers={workers}
+                setActiveView={changeRoute}
+              />
+            ) : (
+              <LoginPage loginSuccess={loginSuccess} />
+            )
           } />
 
           <Route path="/worker-dashboard" element={
-            <WorkerDashboardView 
-              currentUser={currentUser}
-              adminState={adminState}
-              setActiveView={changeRoute}
-              onCallAdmin={() => addToast("Connecting to administrator...", "info")}
-            />
+            isLoggedIn && currentUser?.role === 'specialist' ? (
+              <WorkerDashboardView 
+                currentUser={currentUser}
+                adminState={adminState}
+                setActiveView={changeRoute}
+                onCallAdmin={() => addToast("Connecting to administrator...", "info")}
+              />
+            ) : (
+              <LoginPage loginSuccess={loginSuccess} />
+            )
           } />
 
           <Route path="/admin" element={
-            <AdminView 
-              adminState={adminState}
-              isLoading={isLoadingAdmin}
-              setActiveView={changeRoute}
-              onResolveIssue={handleResolveIssue}
-              onPostJob={() => {
-                setPostJobForm({ title: "", category: "Electrical", location: "Sector 62, Noida", budget: "₹15,000", desc: "" });
-                setActiveModal('post-job');
-              }}
-              onReviewProfiles={() => {
-                applyFilters({ text: "", category: "All", budget: 1000, rating: null, distance: 30 });
-                changeRoute('search');
-                addToast("Displaying all registered specialists awaiting review.", "info");
-              }}
-            />
+            isLoggedIn && currentUser?.role === 'admin' ? (
+              <AdminView 
+                adminState={adminState}
+                isLoading={isLoadingAdmin}
+                setActiveView={changeRoute}
+                onResolveIssue={handleResolveIssue}
+                onPostJob={() => {
+                  setPostJobForm({ title: "", category: "Electrical", location: "Sector 62, Noida", budget: "₹15,000", desc: "" });
+                  setActiveModal('post-job');
+                }}
+                onReviewProfiles={() => {
+                  applyFilters({ text: "", category: "All", budget: 1000, rating: null, distance: 30 });
+                  changeRoute('search');
+                  addToast("Displaying all registered specialists awaiting review.", "info");
+                }}
+                currentUser={currentUser}
+              />
+            ) : (
+              <LoginPage loginSuccess={loginSuccess} />
+            )
           } />
+
+          <Route path="/login" element={<LoginPage loginSuccess={loginSuccess} />} />
+          <Route path="/signup" element={<SignupPage loginSuccess={loginSuccess} />} />
         </Routes>
       </main>
 
@@ -902,154 +933,12 @@ export default function App() {
 
       {/* LOGIN / AUTH MODAL (OVERHAULED) */}
       {activeModal === 'login' && (
-        <div className="modal-backdrop active">
-          <div className="modal-card">
-            <div className="modal-header">
-              <h3>
-                {authStep === 'identify' && 'Login or Register'}
-                {authStep === 'login_options' && 'Welcome Back'}
-                {authStep === 'verify_otp' && 'Verify Email'}
-                {authStep === 'register' && 'Complete Profile'}
-              </h3>
-              <button className="close-modal-btn" onClick={() => setActiveModal(null)}>&times;</button>
-            </div>
-            <div className="modal-body">
-              {authStep === 'identify' && (
-                <div className="auth-form">
-                  <p style={{ marginBottom: '20px', fontSize: '14px', color: 'var(--text-muted)' }}>
-                    Enter your email to get started. We'll check if you have an account.
-                  </p>
-                  <div className="form-group">
-                    <label className="form-label">Email Address</label>
-                    <input 
-                      type="email" 
-                      className="form-input" 
-                      placeholder="name@example.com"
-                      value={authEmail}
-                      onChange={(e) => setAuthEmail(e.target.value)}
-                    />
-                  </div>
-                  <button className="btn btn-accent btn-full" onClick={handleIdentifyEmail}>Continue</button>
-                  <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                    <button 
-                      className="btn btn-text" 
-                      style={{ fontSize: '12px' }}
-                      onClick={async () => {
-                        console.log("Admin shortcut clicked. Targeting port 8005...");
-                        try {
-                          const res = await fetch('http://localhost:8005/api/auth/login-password', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email: 'admin@buildtrust.com', password: '1234@' })
-                          });
-                          
-                          console.log(`Fetch response status: ${res.status}`);
-                          
-                          if (res.status === 404) {
-                             console.error("404 Error: The server at 8005 responded but the route was not found.");
-                             addToast("Server found, but login route is missing (404).", "error");
-                             return;
-                          }
-
-                          const data = await res.json();
-                          if (data.status === "success") {
-                            loginSuccess(data);
-                          } else {
-                            addToast(data.detail || "Admin login failed", "error");
-                          }
-                        } catch (err) {
-                          console.error("Fetch Error:", err);
-                          addToast("Cannot connect to server. Is FastAPI running on port 8005?", "error");
-                        }
-                      }}
-                    >
-                      Login as Admin (Vikram Singh)
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {authStep === 'login_options' && (
-                <div className="auth-form">
-                  <p style={{ marginBottom: '20px', fontSize: '14px', color: 'var(--text-muted)' }}>
-                    Account found! Choose how you'd like to login.
-                  </p>
-                  <div className="form-group">
-                    <label className="form-label">Password</label>
-                    <input 
-                      type="password" 
-                      className="form-input" 
-                      placeholder="••••••••"
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                    />
-                  </div>
-                  <button className="btn btn-accent btn-full" onClick={handleLoginPassword}>Login with Password</button>
-                  <div className="divider-text" style={{ margin: '15px 0', textAlign: 'center', fontSize: '12px', opacity: 0.5 }}>OR</div>
-                  <button className="btn btn-outline btn-full" onClick={() => handleSendOtp()}>Send Login Code (OTP)</button>
-                  <button className="btn btn-text btn-full" style={{ marginTop: '10px' }} onClick={() => setAuthStep('identify')}>Not you? Switch email</button>
-                </div>
-              )}
-
-              {authStep === 'verify_otp' && (
-                <div className="auth-form">
-                  <p style={{ marginBottom: '20px', fontSize: '14px', color: 'var(--text-muted)' }}>
-                    We've sent a code to <strong>{authEmail}</strong>.
-                  </p>
-                  <div className="form-group">
-                    <label className="form-label">6-Digit Code</label>
-                    <input 
-                      type="text" 
-                      className="form-input text-center" 
-                      placeholder="000000"
-                      maxLength="6"
-                      style={{ letterSpacing: '5px', fontSize: '20px' }}
-                      value={otpValue}
-                      onChange={(e) => setOtpValue(e.target.value)}
-                    />
-                  </div>
-                  <button className="btn btn-accent btn-full" onClick={handleVerifyOtp}>Verify & Continue</button>
-                  <button className="btn btn-text btn-full" style={{ marginTop: '10px' }} onClick={() => handleSendOtp()}>Resend Code</button>
-                </div>
-              )}
-
-              {authStep === 'register' && (
-                <div className="auth-form">
-                  <p style={{ marginBottom: '20px', fontSize: '14px', color: 'var(--text-muted)' }}>
-                    Email verified! Tell us about yourself.
-                  </p>
-                  <div className="form-group">
-                    <label className="form-label">Full Name</label>
-                    <input 
-                      type="text" 
-                      className="form-input" 
-                      placeholder="Arjun Sharma"
-                      value={authName}
-                      onChange={(e) => setAuthName(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">I want to...</label>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                       <button className={`btn flex-1 ${authRole === 'customer' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setAuthRole('customer')}>Hire Specialists</button>
-                       <button className={`btn flex-1 ${authRole === 'specialist' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setAuthRole('specialist')}>Work as Specialist</button>
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Set a Password</label>
-                    <input 
-                      type="password" 
-                      className="form-input" 
-                      placeholder="At least 8 characters"
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                    />
-                  </div>
-                  <button className="btn btn-accent btn-full" onClick={handleRegisterUser}>Create Account</button>
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="auth-backdrop active" onClick={(e) => e.target.classList.contains('auth-backdrop') && setActiveModal(null)}>
+          <AuthCard 
+            initialMode={authModalMode} 
+            onAuthSuccess={loginSuccess} 
+            onClose={() => setActiveModal(null)} 
+          />
         </div>
       )}
 

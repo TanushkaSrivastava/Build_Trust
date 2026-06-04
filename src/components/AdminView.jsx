@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
-export default function AdminView({ 
-  adminState, 
+export default function AdminView({
+  adminState,
   isLoading,
-  setActiveView, 
-  onResolveIssue, 
-  onPostJob, 
-  onReviewProfiles 
+  setActiveView,
+  onResolveIssue,
+  onPostJob,
+  onReviewProfiles,
+  currentUser
 }) {
   const [activeSubView, setActiveSubView] = useState('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -36,12 +37,25 @@ export default function AdminView({
   // SVGs Paths coordinates for Revenue trends
   const linePathWeek = "M 40,170 C 120,150 180,80 260,110 C 340,135 420,95 500,50 C 530,30 550,25 570,25";
   const areaPathWeek = "M 40,170 C 120,150 180,80 260,110 C 340,135 420,95 500,50 C 530,30 550,25 570,25 L 570,170 Z";
-  
+
   const linePathMonth = "M 40,130 C 100,120 160,160 220,110 C 300,50 380,80 440,40 C 500,10 540,55 570,10";
   const areaPathMonth = "M 40,130 C 100,120 160,160 220,110 C 300,50 380,80 440,40 C 500,10 540,55 570,10 L 570,170 Z";
 
   const currentLinePath = revenueToggle === 'week' ? linePathWeek : linePathMonth;
   const currentAreaPath = revenueToggle === 'week' ? areaPathWeek : areaPathMonth;
+
+  // Extract initials from name
+  const getInitials = (name) => {
+    if (!name) return 'VS';
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  const adminName = currentUser?.name || 'Vikram Singh';
 
   return (
     <div id="view-admin" className="app-view active-view admin-view">
@@ -53,7 +67,7 @@ export default function AdminView({
           </button>
           <div className="admin-logo-box">
             <svg className="admin-logo-icon" viewBox="0 0 24 24" width="24" height="24">
-              <path fill="currentColor" d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.5 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.1z"/>
+              <path fill="currentColor" d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.5 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.1z" />
             </svg>
             {!isSidebarCollapsed && (
               <div>
@@ -65,8 +79,8 @@ export default function AdminView({
 
           <nav className="admin-nav">
             {['dashboard', 'leads', 'workers', 'payments', 'analytics', 'settings'].map(sub => (
-              <button 
-                key={sub} 
+              <button
+                key={sub}
                 className={`admin-nav-item ${activeSubView === sub ? 'active' : ''}`}
                 onClick={() => {
                   setActiveSubView(sub);
@@ -81,8 +95,8 @@ export default function AdminView({
             ))}
           </nav>
 
-          <button 
-            className={`btn btn-accent ${isSidebarCollapsed ? 'btn-icon' : 'btn-full post-job-btn-sidebar'}`} 
+          <button
+            className={`btn btn-accent ${isSidebarCollapsed ? 'btn-icon' : 'btn-full post-job-btn-sidebar'}`}
             onClick={onPostJob}
             title={isSidebarCollapsed ? 'Post New Job' : ''}
           >
@@ -90,14 +104,14 @@ export default function AdminView({
           </button>
 
           <div className="admin-user-profile">
-            <div className="admin-avatar">VS</div>
+            <div className="admin-avatar">{getInitials(adminName)}</div>
             <div className="admin-user-info">
-              <h4>Vikram Singh</h4>
+              <h4>{adminName}</h4>
               <p>Administrator</p>
             </div>
-            <a 
-              href="#home" 
-              className="logout-link" 
+            <a
+              href="#home"
+              className="logout-link"
               title="Exit Admin Portal"
               onClick={(e) => {
                 e.preventDefault();
@@ -105,7 +119,7 @@ export default function AdminView({
               }}
             >
               <svg viewBox="0 0 24 24" width="18" height="18">
-                <path fill="currentColor" d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+                <path fill="currentColor" d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
               </svg>
             </a>
           </div>
@@ -121,14 +135,14 @@ export default function AdminView({
             <div className="admin-header-actions">
               <div className="date-selector">
                 <svg viewBox="0 0 24 24" width="16" height="16" style={{ marginRight: '8px' }}>
-                  <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                  <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" />
                 </svg>
                 <span>Oct 24, 2024</span>
               </div>
-              
+
               <button className="btn btn-primary" onClick={handleExport}>
                 <svg viewBox="0 0 24 24" width="16" height="16" style={{ marginRight: '6px' }}>
-                  <path fill="currentColor" d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+                  <path fill="currentColor" d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z" />
                 </svg>
                 Export Reports
               </button>
@@ -184,9 +198,9 @@ export default function AdminView({
                   <h3>Revenue Trends</h3>
                   <p>Performance metrics across all workers.</p>
                 </div>
-                
+
                 <div className="toggle-buttons">
-                  <button 
+                  <button
                     className={`toggle-btn ${revenueToggle === 'week' ? 'active' : ''}`}
                     onClick={() => {
                       setRevenueToggle('week');
@@ -196,7 +210,7 @@ export default function AdminView({
                   >
                     Week
                   </button>
-                  <button 
+                  <button
                     className={`toggle-btn ${revenueToggle === 'month' ? 'active' : ''}`}
                     onClick={() => {
                       setRevenueToggle('month');
@@ -208,16 +222,16 @@ export default function AdminView({
                   </button>
                 </div>
               </div>
-              
+
               <div className="chart-container">
                 <svg id="revenueChart" className="svg-chart" viewBox="0 0 600 220">
                   <defs>
                     <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#ff6f00" stopOpacity="0.3"/>
-                      <stop offset="100%" stopColor="#ff6f00" stopOpacity="0.0"/>
+                      <stop offset="0%" stopColor="#ff6f00" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#ff6f00" stopOpacity="0.0" />
                     </linearGradient>
                   </defs>
-                  
+
                   {/* Grid Lines */}
                   <line x1="40" y1="20" x2="570" y2="20" className="chart-grid-line" />
                   <line x1="40" y1="70" x2="570" y2="70" className="chart-grid-line" />
@@ -286,10 +300,10 @@ export default function AdminView({
                 <div className="radial-progress-wrapper">
                   <svg className="radial-svg" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="40" className="radial-bg" />
-                    <circle 
-                      cx="50" cy="50" r="40" 
-                      className="radial-fill" 
-                      strokeDasharray="251.2" 
+                    <circle
+                      cx="50" cy="50" r="40"
+                      className="radial-fill"
+                      strokeDasharray="251.2"
                       strokeDashoffset={251.2 - (251.2 * adminState.completionRate) / 100}
                     />
                   </svg>
@@ -298,7 +312,7 @@ export default function AdminView({
                     <span className="radial-trend">+2.4%</span>
                   </div>
                 </div>
-                
+
                 <div className="completion-legend">
                   <div className="legend-item">
                     <span className="legend-dot green-dot"></span>
@@ -339,7 +353,7 @@ export default function AdminView({
                       <h4>{issue.title}</h4>
                       <p>{issue.desc}</p>
                     </div>
-                    <button 
+                    <button
                       className="btn btn-outline btn-small resolve-issue-btn"
                       onClick={() => onResolveIssue(issue.id)}
                     >
@@ -364,32 +378,32 @@ export default function AdminView({
                 <h2>Dynamic Sector Intelligence</h2>
                 <p>Access real-time worker density and project clustering data. Predictive analysis for resource allocation across NCR.</p>
                 <div className="intelligence-actions">
-                  <button 
-                    className="btn btn-accent" 
+                  <button
+                    className="btn btn-accent"
                     onClick={() => {
                       setHeatMapActive(!heatMapActive);
-                      const event = new CustomEvent('show-toast', { 
-                        detail: { 
-                          message: heatMapActive ? "GIS Heat Map layers disabled." : "GIS Heat Map layers initialized successfully.", 
-                          type: heatMapActive ? 'info' : 'success' 
-                        } 
+                      const event = new CustomEvent('show-toast', {
+                        detail: {
+                          message: heatMapActive ? "GIS Heat Map layers disabled." : "GIS Heat Map layers initialized successfully.",
+                          type: heatMapActive ? 'info' : 'success'
+                        }
                       });
                       window.dispatchEvent(event);
                     }}
                   >
                     {heatMapActive ? "Disable Heat Map" : "Initialize Heat Map"}
                   </button>
-                  
+
                   <button className="btn btn-outline" onClick={handleGisClick}>
                     Advanced GIS Tools
                   </button>
                 </div>
               </div>
-              
+
               <div className="intelligence-right">
                 <div className="gis-map-container">
                   <div className="map-grid-layer"></div>
-                  
+
                   {/* Sector Node coordinates */}
                   <div className="sector-node sec-62" style={{ top: '30%', left: '40%' }} title="Sector 62 (Noida) - High Density">
                     <span className="pulse-ring"></span>
@@ -405,7 +419,7 @@ export default function AdminView({
                   </div>
 
                   <div className={`heat-map-overlay ${heatMapActive ? 'active' : ''}`}></div>
-                  
+
                   <div className="map-labels">
                     <div className="map-lbl-item"><span className="legend-dot green-dot"></span> Noida Sector 62 (Optimal)</div>
                     <div className="map-lbl-item"><span className="legend-dot red-dot"></span> Sector 44 (Safety Alert)</div>

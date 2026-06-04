@@ -47,7 +47,8 @@ def log(msg):
 # Global Mock Data
 MOCK_WORKERS = [
     {"id": "rajesh-kumar", "name": "Rajesh Kumar", "specialty": "Masonry", "rate": 450, "rating": 4.9, "verified": True, "image": "/assets/images/worker_rajesh_kumar.png"},
-    {"id": "manish-sharma", "name": "Manish Sharma", "specialty": "Electrical", "rate": 350, "rating": 4.8, "verified": True, "image": "/assets/images/worker_marcus_thorne.png"}
+    {"id": "manish-sharma", "name": "Manish Sharma", "specialty": "Electrical", "rate": 350, "rating": 4.8, "verified": True, "image": "/assets/images/worker_marcus_thorne.png"},
+    {"id": "sunita-rao", "name": "Sunita Rao", "specialty": "Painting", "rate": 280, "rating": 4.8, "verified": True, "image": "/assets/images/worker_sarah_jenkins.png"}
 ]
 
 # --- EXTREME ADMIN BYPASS MIDDLEWARE ---

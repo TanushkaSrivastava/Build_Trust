@@ -12,19 +12,26 @@ class DataverseService:
         self.tenant_id = os.getenv("TENANT_ID")
         self.resource = os.getenv("DATAVERSE_URL")
         
-        if not all([self.client_id, self.client_secret, self.tenant_id, self.resource]):
+        if (not all([self.client_id, self.client_secret, self.tenant_id, self.resource]) or
+            "your-client-id" in self.client_id or
+            "your-tenant-id" in self.tenant_id or
+            "your-org" in self.resource):
             self.configured = False
             return
             
         self.authority = f"https://login.microsoftonline.com/{self.tenant_id}"
         self.scope = [f"{self.resource}/.default"]
-        self.configured = True
         
-        self.app = msal.ConfidentialClientApplication(
-            self.client_id,
-            authority=self.authority,
-            client_credential=self.client_secret
-        )
+        try:
+            self.app = msal.ConfidentialClientApplication(
+                self.client_id,
+                authority=self.authority,
+                client_credential=self.client_secret
+            )
+            self.configured = True
+        except Exception as e:
+            print(f"⚠️ Failed to configure Dataverse MSAL app: {e}")
+            self.configured = False
 
     async def get_access_token(self):
         if not self.configured:

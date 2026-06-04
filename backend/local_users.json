@@ -1,0 +1,16 @@
+{
+    "tanushkasri070@gmail.com": {
+        "email": "tanushkasri070@gmail.com",
+        "password_hash": "$2b$12$b9ifL0crPvVTOLw/ShN2zOwBu72HjCbipBDUCib/PaUlN/sqLEuSO",
+        "role": "customer",
+        "name": "arjun",
+        "created_at": "nt.times_result(user=4.015625, system=2.953125, children_user=0.0, children_system=0.0, elapsed=0.0)"
+    },
+    "tanushkasri070@outlook.com": {
+        "email": "tanushkasri070@outlook.com",
+        "password_hash": "$2b$12$cPL6Q2JxOFTrDYsOY52iJ.Q9YyEzn.7A1Sig/1JN.CjyCf9YH9OR6",
+        "role": "customer",
+        "name": "Tanushka",
+        "created_at": "nt.times_result(user=9.46875, system=4.140625, children_user=0.0, children_system=0.0, elapsed=0.0)"
+    }
+}
