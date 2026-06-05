@@ -57,12 +57,32 @@ export default function AdminView({
 
   const adminName = currentUser?.name || 'Vikram Singh';
 
+  // Keyboard shortcuts for admin tabs
+  React.useEffect(() => {
+    const handleAdminKeys = (e) => {
+      // Only trigger if not in an input/textarea
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      
+      if (e.key === '1') setActiveSubView('dashboard');
+      if (e.key === '2') setActiveSubView('leads');
+      if (e.key === '3') setActiveSubView('workers');
+      if (e.key === '4') setActiveSubView('analytics');
+    };
+    window.addEventListener('keydown', handleAdminKeys);
+    return () => window.removeEventListener('keydown', handleAdminKeys);
+  }, []);
+
   return (
     <div id="view-admin" className="app-view active-view admin-view">
       <div className={`admin-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {/* Sidebar */}
-        <aside className="admin-sidebar">
-          <button className="sidebar-toggle-btn" onClick={toggleSidebar}>
+        <aside className="admin-sidebar" role="navigation" aria-label="Admin Sidebar">
+          <button 
+            className="sidebar-toggle-btn" 
+            onClick={toggleSidebar}
+            aria-expanded={!isSidebarCollapsed}
+            aria-label={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
             {isSidebarCollapsed ? '→' : '←'}
           </button>
           <div className="admin-logo-box">
@@ -105,23 +125,27 @@ export default function AdminView({
 
           <div className="admin-user-profile">
             <div className="admin-avatar">{getInitials(adminName)}</div>
-            <div className="admin-user-info">
-              <h4>{adminName}</h4>
-              <p>Administrator</p>
-            </div>
-            <a
-              href="#home"
-              className="logout-link"
-              title="Exit Admin Portal"
-              onClick={(e) => {
-                e.preventDefault();
-                setActiveView('home');
-              }}
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18">
-                <path fill="currentColor" d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
-              </svg>
-            </a>
+            {!isSidebarCollapsed && (
+              <>
+                <div className="admin-user-info">
+                  <h4>{adminName}</h4>
+                  <p>Administrator</p>
+                </div>
+                <a
+                  href="#home"
+                  className="logout-link"
+                  title="Exit Admin Portal"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveView('home');
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18">
+                    <path fill="currentColor" d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+                  </svg>
+                </a>
+              </>
+            )}
           </div>
         </aside>
 

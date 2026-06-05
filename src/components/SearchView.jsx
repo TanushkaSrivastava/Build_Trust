@@ -11,7 +11,9 @@ export default function SearchView({
   setComparisonList, 
   onOpenComparison,
   onLoadMore,
-  onPrefetch // Add this
+  onPrefetch,
+  isLoggedIn,
+  onOpenLogin
 }) {
 
   const [inputText, setInputText] = useState(searchFilters.text || "");
@@ -227,64 +229,91 @@ export default function SearchView({
               </div>
             ) : (
               <>
-                {filteredWorkers.map(worker => (
-                  <div key={worker.id} className="worker-row-card" onMouseEnter={() => onPrefetch?.(worker.id)}>
-                    <div 
-                      className="worker-row-avatar" 
-                      style={{ backgroundImage: `url('${worker.image}')` }}
-                    ></div>
-                    <div className="worker-row-info">
-                      <div className="worker-info-header">
-                        <div className="worker-title-box">
-                          <h3 
-                            onClick={() => {
-                              setActiveView(`profile/${worker.id}`);
-                            }}
-                          >
-                            {worker.name} {worker.verified && <span className="verified-icon">✓</span>}
-                          </h3>
-                          <div className="worker-skills-tags">
-                            {(worker.tags || []).map(t => <span key={t} className="tag-badge">{t}</span>)}
+                {filteredWorkers.map((worker, index) => {
+                  const isGated = !isLoggedIn && index >= 3;
+
+                  return (
+                    <div key={worker.id} style={{ position: 'relative' }}>
+                      <div 
+                        className={`worker-row-card ${isGated ? 'gated-worker-card' : ''}`} 
+                        onMouseEnter={() => !isGated && onPrefetch?.(worker.id)}
+                      >
+                        <div 
+                          className="worker-row-avatar" 
+                          style={{ backgroundImage: `url('${worker.image}')` }}
+                        ></div>
+                        <div className="worker-row-info">
+                          <div className="worker-info-header">
+                            <div className="worker-title-box">
+                              <h3 
+                                onClick={() => {
+                                  if (!isGated) setActiveView(`profile/${worker.id}`);
+                                }}
+                              >
+                                {worker.name} {worker.verified && <span className="verified-icon">✓</span>}
+                              </h3>
+                              <div className="worker-skills-tags">
+                                {(worker.tags || []).map(t => <span key={t} className="tag-badge">{t}</span>)}
+                              </div>
+                            </div>
+                            <div className="worker-row-rating">
+                              ★ {worker.rating} <span className="worker-reviews-lbl">({worker.reviewsCount} reviews)</span>
+                            </div>
+                          </div>
+                          <p className="worker-desc">{worker.about}</p>
+                          
+                          <div className="worker-row-footer">
+                            <div className="worker-row-price">₹{worker.rate}<span>/hr</span></div>
+                            <div className="flex-align" style={{ gap: '16px' }}>
+                              <label className="checkbox-container" style={{ marginBottom: 0 }}>
+                                <input 
+                                  type="checkbox"
+                                  checked={comparisonList.includes(worker.id)}
+                                  onChange={(e) => !isGated && handleCompareChange(worker.id, e.target.checked)}
+                                  disabled={isGated}
+                                />
+                                <span className="checkmark"></span>
+                                Add to Comparison
+                              </label>
+                              <button 
+                                className="btn btn-primary"
+                                onClick={() => {
+                                  if (!isGated) setActiveView(`profile/${worker.id}`);
+                                }}
+                                disabled={isGated}
+                              >
+                                View Profile
+                              </button>
+                            </div>
                           </div>
                         </div>
-                        <div className="worker-row-rating">
-                          ★ {worker.rating} <span className="worker-reviews-lbl">({worker.reviewsCount} reviews)</span>
-                        </div>
                       </div>
-                      <p className="worker-desc">{worker.about}</p>
-                      
-                      <div className="worker-row-footer">
-                        <div className="worker-row-price">₹{worker.rate}<span>/hr</span></div>
-                        <div className="flex-align" style={{ gap: '16px' }}>
-                          <label className="checkbox-container" style={{ marginBottom: 0 }}>
-                            <input 
-                              type="checkbox"
-                              checked={comparisonList.includes(worker.id)}
-                              onChange={(e) => handleCompareChange(worker.id, e.target.checked)}
-                            />
-                            <span className="checkmark"></span>
-                            Add to Comparison
-                          </label>
-                          <button 
-                            className="btn btn-primary"
-                            onClick={() => {
-                              setActiveView(`profile/${worker.id}`);
-                            }}
-                          >
-                            View Profile
-                          </button>
+
+                      {/* CTA Overlay for the first gated card */}
+                      {isGated && index === 3 && (
+                        <div className="frosted-gate-overlay">
+                          <div className="gate-cta-box animate-fade">
+                            <h3>Unlock 85+ More Specialists</h3>
+                            <p>Create a free account to view full profiles, ratings, and hire verified professionals in your area.</p>
+                            <div className="flex-align" style={{ gap: '12px', justifyContent: 'center' }}>
+                              <button className="btn btn-primary" onClick={() => onOpenLogin('signup')}>Join Build_Trust</button>
+                              <button className="btn btn-text" onClick={() => onOpenLogin('login')}>Login</button>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 
-                {/* Pagination Trigger */}
-                <div className="pagination-box" style={{ padding: '20px 0', textAlign: 'center' }}>
-                    <button className="btn btn-outline" onClick={onLoadMore} disabled={isLoading}>
-                        {isLoading ? 'Loading...' : 'Load More Specialists'}
-                    </button>
-                </div>
+                {/* Pagination Trigger - Only for logged in users */}
+                {isLoggedIn && (
+                  <div className="pagination-box" style={{ padding: '20px 0', textAlign: 'center' }}>
+                      <button className="btn btn-outline" onClick={onLoadMore} disabled={isLoading}>
+                          {isLoading ? 'Loading...' : 'Load More Specialists'}
+                      </button>
+                  </div>
+                )}
               </>
             )}
           </div>

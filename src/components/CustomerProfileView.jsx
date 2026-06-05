@@ -27,6 +27,8 @@ export default function CustomerProfileView({
     };
   });
 
+  const isNewUser = currentUser?.isNew || false;
+
   return (
     <div className="container" style={{ padding: '40px 0' }}>
       <Breadcrumbs paths={[{ label: "My Profile", active: true }]} />
@@ -36,7 +38,9 @@ export default function CustomerProfileView({
           {currentUser?.email?.charAt(0).toUpperCase()}
         </div>
         <div>
-          <h1 style={{ fontSize: '28px', marginBottom: '4px' }}>Welcome back!</h1>
+          <h1 style={{ fontSize: '28px', marginBottom: '4px' }}>
+            {isNewUser ? 'Welcome to Build_Trust!' : 'Welcome back!'}
+          </h1>
           <p style={{ color: 'var(--text-muted)' }}>{currentUser?.email}</p>
           <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
             <span className="badge badge-blue">Verified Customer</span>
@@ -54,7 +58,11 @@ export default function CustomerProfileView({
           <div className="live-feed-list" style={{ minHeight: '300px' }}>
             {customerBookings.length === 0 ? (
               <div className="text-center" style={{ padding: '60px 20px' }}>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>You haven't booked any specialists yet.</p>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🛠️</div>
+                <h3>No Bookings Yet</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '24px', maxWidth: '300px', margin: '0 auto 24px' }}>
+                  Find and book verified specialists for your construction or repair projects.
+                </p>
                 <Link to="/search" className="btn btn-primary">Browse Specialists</Link>
               </div>
             ) : (
@@ -79,7 +87,11 @@ export default function CustomerProfileView({
           <div className="chat-list" style={{ minHeight: '300px' }}>
             {activeChats.length === 0 ? (
               <div className="text-center" style={{ padding: '60px 20px' }}>
-                <p style={{ color: 'var(--text-muted)' }}>No active conversations.</p>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+                <h3>No Messages</h3>
+                <p style={{ color: 'var(--text-muted)', maxWidth: '300px', margin: '0 auto' }}>
+                  When you message a specialist, your conversations will appear here.
+                </p>
               </div>
             ) : (
               activeChats.map(chat => (

@@ -177,9 +177,10 @@ class AuthService:
             print(f"OTP_VERIFY_ERROR: {e}")
             return False, "Verification system error"
 
-    def create_access_token(self, email: str):
+    def create_access_token(self, email: str, role: str = "customer"):
         payload = {
             "sub": email,
+            "role": role,
             "exp": datetime.datetime.utcnow() + datetime.timedelta(days=1),
             "iat": datetime.datetime.utcnow()
         }
@@ -188,7 +189,7 @@ class AuthService:
     def verify_token(self, token: str):
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=["HS256"])
-            return payload.get("sub")
+            return payload # Returns dict with 'sub' (email) and 'role'
         except jwt.ExpiredSignatureError:
             raise Exception("Token has expired")
         except jwt.InvalidTokenError:
@@ -201,10 +202,10 @@ security = HTTPBearer()
 
 async def get_current_user(auth: HTTPAuthorizationCredentials = Depends(security)):
     try:
-        email = auth_service.verify_token(auth.credentials)
-        if not email:
+        user_data = auth_service.verify_token(auth.credentials)
+        if not user_data:
             raise HTTPException(status_code=401, detail="Invalid user session")
-        return {"email": email}
+        return user_data # Now contains email and role
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))
 

@@ -21,6 +21,8 @@ export default function WorkerDashboardView({
     profileViews: 142
   };
 
+  const isNewUser = currentUser?.isNew || false;
+
   return (
     <div id="view-worker-dashboard" className="app-view active-view container" style={{ padding: '40px 0' }}>
       <Breadcrumbs paths={[{ label: "Specialist Dashboard", active: true }]} />
@@ -28,8 +30,12 @@ export default function WorkerDashboardView({
       <header className="dashboard-header" style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 style={{ fontSize: '32px' }}>Namaste, {currentUser.name || 'Specialist'}!</h1>
-            <p style={{ color: 'var(--text-muted)' }}>Manage your active projects and track your earnings.</p>
+            <h1 style={{ fontSize: '32px' }}>
+              {isNewUser ? `Welcome to the Team, ${currentUser.name || 'Specialist'}!` : `Welcome back, ${currentUser.name || 'Specialist'}!`}
+            </h1>
+            <p style={{ color: 'var(--text-muted)' }}>
+              {isNewUser ? 'Set up your profile to start receiving job bookings.' : 'Manage your active projects and track your earnings.'}
+            </p>
           </div>
           <div className="status-badge" style={{ padding: '8px 16px', background: '#ecfdf5', color: '#10b981', borderRadius: '20px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="live-pulse" style={{ width: '8px', height: '8px' }}></span> Available for Work
@@ -41,20 +47,20 @@ export default function WorkerDashboardView({
       <section className="admin-metrics-grid" style={{ marginBottom: '40px' }}>
         <div className="metric-card">
           <div className="metric-header"><span>Monthly Earnings</span></div>
-          <div className="metric-value">{stats.earnings}</div>
-          <p style={{ fontSize: '12px', color: '#10b981', marginTop: '4px' }}>▲ 15% from last month</p>
+          <div className="metric-value">{isNewUser ? '₹0' : stats.earnings}</div>
+          {!isNewUser && <p style={{ fontSize: '12px', color: '#10b981', marginTop: '4px' }}>▲ 15% from last month</p>}
         </div>
         <div className="metric-card">
           <div className="metric-header"><span>Completed Jobs</span></div>
-          <div className="metric-value">{stats.completedJobs}</div>
+          <div className="metric-value">{isNewUser ? '0' : stats.completedJobs}</div>
         </div>
         <div className="metric-card">
           <div className="metric-header"><span>Average Rating</span></div>
-          <div className="metric-value">★ {stats.rating}</div>
+          <div className="metric-value">{isNewUser ? 'New' : `★ ${stats.rating}`}</div>
         </div>
         <div className="metric-card">
           <div className="metric-header"><span>Profile Views</span></div>
-          <div className="metric-value">{stats.profileViews}</div>
+          <div className="metric-value">{isNewUser ? '0' : stats.profileViews}</div>
         </div>
       </section>
 
@@ -74,7 +80,10 @@ export default function WorkerDashboardView({
               {myBookings.length === 0 ? (
                 <div className="text-center" style={{ padding: '60px 0' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>📅</div>
-                  <p style={{ color: 'var(--text-muted)' }}>No upcoming bookings. Try lowering your hourly rate or adding more specialties!</p>
+                  <h3>No Bookings Yet</h3>
+                  <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>
+                    Once customers hire you for projects, their booking requests will appear here for you to accept.
+                  </p>
                 </div>
               ) : (
                 myBookings.map((job, idx) => (
@@ -98,7 +107,11 @@ export default function WorkerDashboardView({
 
           {activeTab === 'messages' && (
             <div className="text-center" style={{ padding: '60px 0' }}>
-               <p style={{ color: 'var(--text-muted)' }}>Syncing secure chat history with Dataverse...</p>
+               <div style={{ fontSize: '48px', marginBottom: '16px' }}>💬</div>
+               <h3>No Customer Messages</h3>
+               <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}>
+                 Customer inquiries and project discussions will be synced securely with Dataverse here.
+               </p>
             </div>
           )}
 
@@ -106,16 +119,16 @@ export default function WorkerDashboardView({
             <div className="settings-form" style={{ maxWidth: '600px' }}>
               <div className="form-group">
                 <label className="form-label">Professional Bio</label>
-                <textarea className="form-input" rows="4" defaultValue={`I am a professional specialist with over ${stats.completedJobs} successful projects on Build_Trust.`}></textarea>
+                <textarea className="form-input" rows="4" defaultValue={isNewUser ? "" : `I am a professional specialist with over ${stats.completedJobs} successful projects on Build_Trust.`} placeholder="Describe your experience and specialties..."></textarea>
               </div>
               <div className="form-row">
                 <div className="form-group flex-1">
                   <label className="form-label">Hourly Rate (₹)</label>
-                  <input type="number" className="form-input" defaultValue="450" />
+                  <input type="number" className="form-input" defaultValue={isNewUser ? "" : "450"} placeholder="e.g. 500" />
                 </div>
                 <div className="form-group flex-1">
                   <label className="form-label">Available Radius (km)</label>
-                  <input type="number" className="form-input" defaultValue="15" />
+                  <input type="number" className="form-input" defaultValue={isNewUser ? "" : "15"} placeholder="e.g. 10" />
                 </div>
               </div>
               <button className="btn btn-accent">Save Profile Changes</button>
