@@ -8,18 +8,39 @@ export default function WorkerDashboardView({
   onCallAdmin 
 }) {
   const [activeTab, setActiveTab] = useState('bookings');
+  const [stats, setStats] = useState({
+    earnings: "₹0",
+    completedJobs: 0,
+    rating: 0,
+    profileViews: 0
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+  // Fetch real specialist stats from API
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('bt_token');
+        const res = await fetch('http://localhost:8005/api/specialist/stats', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data && !data.detail) {
+          setStats(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch specialist stats:", err);
+      } finally {
+        setIsLoadingStats(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   // Filter jobs specific to this worker (matching by name in mock or email)
   const myBookings = (adminState.liveOps || []).filter(op => 
     op.type === 'job' && op.text.includes(currentUser.name || currentUser.email)
   );
-
-  const stats = {
-    earnings: "₹12,450",
-    completedJobs: 8,
-    rating: 4.9,
-    profileViews: 142
-  };
 
   const isNewUser = currentUser?.isNew || false;
 

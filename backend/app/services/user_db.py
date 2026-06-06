@@ -23,13 +23,14 @@ class UserDB:
         return self.users.get(email.lower().strip())
 
     def create_user(self, email, password_hash, role, full_name):
+        import datetime
         email = email.lower().strip()
         self.users[email] = {
             "email": email,
             "password_hash": password_hash,
             "role": role,
             "name": full_name,
-            "created_at": str(os.times())
+            "created_at": datetime.datetime.utcnow().isoformat()
         }
         self._save_users()
         return self.users[email]

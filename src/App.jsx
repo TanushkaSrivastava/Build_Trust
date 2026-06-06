@@ -33,18 +33,16 @@ function ProfileViewWrapper({
 
   // FETCH CHAT HISTORY ON LOAD
   useEffect(() => {
-    const token = localStorage.getItem('bt_token');
-    if (token && id) {
+    if (isLoggedIn && id) {
       const fetchChat = async () => {
         try {
-          const res = await fetch(`http://localhost:8005/api/chat/${id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          const res = await authenticatedFetch(`http://localhost:8005/api/chat/${id}`);
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
             setChatLogs(prev => ({ ...prev, [id]: data }));
           }
         } catch (err) {
+          // AUTH_INVALID handled by authenticatedFetch
           console.error("Chat fetch failed", err);
         }
       };
@@ -727,16 +725,6 @@ export default function App() {
         return { ...prev, [workerId]: list };
       });
 
-      // Simulation: Auto-reply
-      setTimeout(async () => {
-        const replyText = "Thank you for the message! I've received your inquiry and will review the project specs shortly.";
-        const workerMsg = { sender: 'worker', text: replyText };
-        setChatLogs(prev => {
-          const list = prev[workerId] || [];
-          return { ...prev, [workerId]: [...list, workerMsg] };
-        });
-      }, 1000);
-
     } catch (err) {
       console.error("Chat persistence failed", err);
     }
@@ -857,17 +845,9 @@ export default function App() {
     addToast(`Successfully resolved issue #BT-${issueId.substring(5)}`);
   };
 
-  // 10. RESCUE BYPASS (Debug Only)
+  // 10. FINAL PLATFORM SYNC
   useEffect(() => {
-    window.rescueAdmin = () => {
-      console.warn("RESCUE BYPASS: Entering Admin Mode manually.");
-      const mockData = {
-        token: "rescue_token_" + Date.now(),
-        user: { email: 'admin@buildtrust.com', role: 'admin', name: 'Vikram Singh (Rescue)' }
-      };
-      loginSuccess(mockData);
-    };
-    console.log("%c Build_Trust Debug: If Admin Login fails, type 'rescueAdmin()' in this console.", "color: #ff6f00; font-weight: bold; font-size: 14px;");
+    log("Build_Trust Online Sync: Monitoring for trade-matching events...");
   }, []);
 
   return (

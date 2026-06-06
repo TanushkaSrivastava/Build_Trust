@@ -12,5 +12,12 @@
         "role": "customer",
         "name": "Tanushka",
         "created_at": "nt.times_result(user=9.46875, system=4.140625, children_user=0.0, children_system=0.0, elapsed=0.0)"
+    },
+    "kurianjoseoff@gmail.com": {
+        "email": "kurianjoseoff@gmail.com",
+        "password_hash": "$2b$12$irc6M3TW3PqOKYip0Ow1CeARLFS2vhfNUz5QyODNEKvi.XQjEvpei",
+        "role": "customer",
+        "name": "Kurian Jose",
+        "created_at": "nt.times_result(user=2.953125, system=6.609375, children_user=0.0, children_system=0.0, elapsed=0.0)"
     }
 }

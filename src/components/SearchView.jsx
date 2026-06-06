@@ -250,9 +250,10 @@ export default function SearchView({
                                   if (!isGated) setActiveView(`profile/${worker.id}`);
                                 }}
                               >
-                                {worker.name} {worker.verified && <span className="verified-icon">✓</span>}
+                                {worker.name} <span className="worker-profession-label">({worker.specialty})</span> {worker.verified && <span className="verified-icon">✓</span>}
                               </h3>
                               <div className="worker-skills-tags">
+                                <span className="tag-badge specialty-badge">{worker.specialty}</span>
                                 {(worker.tags || []).map(t => <span key={t} className="tag-badge">{t}</span>)}
                               </div>
                             </div>
@@ -260,7 +261,7 @@ export default function SearchView({
                               ★ {worker.rating} <span className="worker-reviews-lbl">({worker.reviewsCount} reviews)</span>
                             </div>
                           </div>
-                          <p className="worker-desc">{worker.about}</p>
+                          <p className="worker-desc">{worker.about || `Professional specialist in ${worker.specialty} services with a verified rating of ${worker.rating}.`}</p>
                           
                           <div className="worker-row-footer">
                             <div className="worker-row-price">₹{worker.rate}<span>/hr</span></div>
